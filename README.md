@@ -1,6 +1,4 @@
-# gozintograph
-GozIntoGraph Viewer
-===================
+# GozIntoGraph Viewer
 
 In der Materialbedarfsplanung wird zur Visualisierung der Erzeugnisstruktur ein Gozintograph verwendet. Mit dieser Anwendung kann dieser Gozintograph grafisch dargestellt werden. Die Stücklistenstruktur muss dafür nur als CSV-Datei vorliegen.
 

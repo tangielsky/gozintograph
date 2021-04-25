@@ -145,7 +145,7 @@ type
       FShowQuantities : boolean;
       FTextColor : TColor;
 
-      xmax, ymax : longint;
+      xmax, xmaxtotal, ymax : longint;
       MovedItem : TGozGraphItem;
       MovedItemX, MovedItemY : longint;
       Moving : boolean;
@@ -165,7 +165,6 @@ type
       procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
       procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
       procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
-      procedure SelectItems(startitem: TGozGraphItem);
       procedure SelectLinksDown(searchitem: TGozGraphItem);
       procedure SelectLinksUp(searchitem: TGozGraphItem);
       procedure SetScaleFactor(AValue: double);
@@ -193,6 +192,7 @@ type
       procedure Clear;
       procedure ClearSelections;
       procedure Invalidate; override;
+      procedure SelectItems(startitem: TGozGraphItem);
       procedure SetScaleFactorFromWidth(NewWidth: longint);
       procedure UpdateConnections;
 
@@ -222,6 +222,7 @@ var
   gozProductColor : TColor;
   gozModuleColor : TColor;
   gozItemColor : TColor;
+
 
 
 implementation
@@ -370,6 +371,14 @@ begin
             begin
               CalcLinks(linkitem,x0,y0,level+1);
               x0:=xmax;
+              {if xmax>x0 then
+                begin
+                  //if there are links
+                  if (j<item.Links.Count-1)
+                    and (HasLinks(GetItem(TGozGraphLink(item.Links[j+1]).Destination))) then
+                      x0:=xmax;
+
+                end;}
               if j<item.Links.Count-1 then x0:=x0+(linkitem.Width+FDistanceX);
             end
           else
@@ -387,8 +396,12 @@ begin
   if x0>xmax then xmax:=x0;
   if y0>ymax then ymax:=y0;
 
+  if xmax>xmaxtotal then xmaxtotal:=xmax;
+
+
   item.x:=x;
   item.y:=y;
+
 end;
 
 procedure TGozIntoGraph.Autolayout;
@@ -398,7 +411,7 @@ var
   item : TGozGraphItem;
 begin
   ClearConnections;
-  xmax:=0;
+  xmax:=0; xmaxtotal:=0;
   ymax:=0;
   x:=FDistanceX;
   y:=Canvas.TextHeight('Ag');
@@ -434,6 +447,7 @@ var
   TxtH : integer;
 begin
   inherited Paint;
+
 
   Canvas.Brush.Style:=bsSolid;
   Canvas.Brush.Color:=FColor;
@@ -620,6 +634,35 @@ begin
       if item.Selected then Canvas.Brush.Color:=FHighlightColor
       else Canvas.Brush.Color:=FColor;
 
+      //Text rechts
+      //Canvas.TextOut(item.x+FDefaultItemWidth,item.y+(item.Height-th) div 2,IntToStr(item.Level)+':'+item.Caption);
+
+
+      {
+      s:={IntToStr(item.Level)+':'+}item.Caption;
+      if Canvas.TextWidth(s)>Round(FDefaultItemWidth+FDistanceX/2) then
+        begin
+          j:=round(length(s)/2);
+          s1:=copy(s,1,j);
+          s2:=copy(s,j+1,length(s)-j);
+        end
+      else
+        begin
+          s1:='';
+          s2:=s;
+        end;
+
+      Canvas.Font.Color:=FTextColor;
+      Canvas.Brush.Style:=bsClear;
+      Canvas.TextOut(Scale(item.x+FDefaultItemWidth div 2 - Canvas.TextWidth(s1) div 2),Scale(item.y-th*2),s1);
+      Canvas.TextOut(Scale(item.x+FDefaultItemWidth div 2 - Canvas.TextWidth(s2) div 2),Scale(item.y-th),s2);
+      }
+      //R:=Rect(Scale(item.x),Scale(item.y),Scale(item.x+FDefaultItemWidth),Scale(item.y-2*th));
+      //Canvas.TextRect(R, R.Left, R.Top, s, Canvas.TextStyle);
+      //DrawText(Canvas.Handle, @sText[1], Length(sText), TextRect, DT_CALCRECT);
+      //Canvas.Font.Color:=clBlack;
+      //DrawText(Canvas.Handle, @s[1], Length(s), R, DT_WORDBREAK);
+
       if FShowCaptions then
         begin
           Canvas.Font.Color:=FTextColor;
@@ -727,6 +770,7 @@ procedure TGozIntoGraph.Invalidate;
 begin
   inherited Invalidate;
 end;
+
 
 function TGozIntoGraph.ImportFromCsvFile(AFilename: string; Delimiter: string;
   HasHeaders: boolean; PosSource, PosDestination, PosQuantity: integer
@@ -1051,6 +1095,7 @@ begin
   else if FItemType=gitProduct then result:='Produkt'
   else result:='undefiniert';
 end;
+
 
 end.
 

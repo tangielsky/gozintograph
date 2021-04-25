@@ -5,15 +5,18 @@ unit main;
 {
 Gozintograph Viewer
 
-https://techpluscode.de/produktstruktur-analyse-im-gozintograph/
-https://github.com/tangielsky/gozintograph
+https://techpluscode.de/tag/gozintograph
+https://techpluscode.de/erzeugnisstruktur-visualisieren-als-gozintograph
+https://techpluscode.de/produktstruktur-analyse-im-gozintograph-viewer
 
-(C) 2021 Thomas Angielsky
+(C) 2021 Thomas Angielsky  
 
 
 
 Version 0.1: first realeased version
              compiled with Lazarus 2.0.12
+
+Version 0.2: added search inputfield
 
 }
 
@@ -32,6 +35,7 @@ type
   { TMainForm }
 
   TMainForm = class(TForm)
+    ActionSearch: TAction;
     ActionImportCsvIcon: TAction;
     ActionZoomAll: TAction;
     ActionAutolayout: TAction;
@@ -47,8 +51,12 @@ type
     CheckBoxSelectionUp: TCheckBox;
     CheckBoxShowQuantities: TCheckBox;
     CheckBoxShowCaptions: TCheckBox;
+    EditSearch: TEdit;
     ImageListIconLarge: TImageList;
     ImageListIconSmall: TImageList;
+    Label12: TLabel;
+    LabelSearch: TLabel;
+    Label5: TLabel;
     LabelFilename: TLabel;
     Label10: TLabel;
     Label11: TLabel;
@@ -72,7 +80,9 @@ type
     Panel31: TPanel;
     Panel32: TPanel;
     Panel33: TPanel;
+    Panel34: TPanel;
     Panel36: TPanel;
+    Panel37: TPanel;
     Panel39: TPanel;
     Panel4: TPanel;
     Panel6: TPanel;
@@ -82,14 +92,15 @@ type
     SpeedButton1: TSpeedButton;
     SpeedButton10: TSpeedButton;
     SpeedButton11: TSpeedButton;
+    SpeedButton12: TSpeedButton;
     SpeedButton14: TSpeedButton;
     SpeedButton15: TSpeedButton;
     SpeedButton16: TSpeedButton;
+    SpeedButton17: TSpeedButton;
     SpeedButton2: TSpeedButton;
     SpeedButton4: TSpeedButton;
     SpeedButton5: TSpeedButton;
     SpeedButton6: TSpeedButton;
-    SpeedButton7: TSpeedButton;
     SpeedButton8: TSpeedButton;
     SpeedButton9: TSpeedButton;
     TrackBarZoom: TTrackBar;
@@ -97,6 +108,7 @@ type
     procedure ActionAutolayoutExecute(Sender: TObject);
     procedure ActionHomepageExecute(Sender: TObject);
     procedure ActionImportCsvExecute(Sender: TObject);
+    procedure ActionSearchExecute(Sender: TObject);
     procedure ActionSetupPreferencesExecute(Sender: TObject);
     procedure ActionZoomAllExecute(Sender: TObject);
     procedure ActionZoomInExecute(Sender: TObject);
@@ -105,6 +117,7 @@ type
     procedure CheckBoxSelectionUpChange(Sender: TObject);
     procedure CheckBoxShowCaptionsChange(Sender: TObject);
     procedure CheckBoxShowQuantitiesChange(Sender: TObject);
+    procedure EditSearchChange(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -115,8 +128,12 @@ type
     procedure TrackBarZoomChange(Sender: TObject);
   private
     FirstStart : boolean;
+    SearchIndex : integer;
+    FoundPos, FoundCount : integer;
     procedure ApplyZoom(ZoomDelta: integer);
     procedure GozGraphItemSelected( item: TGozGraphItem);
+    procedure LabelSearchUpdate;
+    function SearchItemFound(Index: integer): boolean;
   public
 
   end;
@@ -136,6 +153,7 @@ uses preferences, importcsv, about;
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
   FirstStart:=true;
+  SearchIndex:=0;
 
   GozGraph:=TGozIntoGraph.Create(MainForm);
   GozGraph.Align:=alNone;
@@ -208,7 +226,18 @@ begin
   end;
 end;
 
-
+function TMainForm.SearchItemFound(Index : integer) : boolean;
+var
+  item : TGozGraphItem;
+begin
+  if (Index<0) or (Index>GozGraph.Items.Count-1) then
+    begin
+      result:=false;
+      exit;
+    end;
+  item:=TGozGraphItem(GozGraph.Items[Index]);
+  result:=Pos(UpperCase(EditSearch.Text),UpperCase(item.Caption))>0;
+end;
 
 procedure TMainForm.ApplyZoom(ZoomDelta : integer);
 begin
@@ -240,6 +269,50 @@ end;
 procedure TMainForm.ActionImportCsvExecute(Sender: TObject);
 begin
   ImportCsvForm.ShowModal;
+end;
+
+
+procedure TMainForm.ActionSearchExecute(Sender: TObject);
+var
+  item : TGozGraphItem;
+  found : boolean;
+  ScaledX, ScaledY : longint;
+begin
+  if SearchIndex>GozGraph.Items.Count-1 then
+    begin
+      SearchIndex:=0;
+      FoundPos:=0;
+    end;
+
+  if SearchIndex>GozGraph.Items.Count-1 then exit;
+
+  item:=nil;
+  found:=false;
+  repeat
+    item:=TGozGraphItem(GozGraph.Items[SearchIndex]);
+    found:=SearchItemFound(SearchIndex);
+    SearchIndex:=SearchIndex+1;
+  until (SearchIndex>GozGraph.Items.Count-1) or (found=true);
+
+  if (item<>nil) and (found=true) then
+    begin
+      FoundPos:=FoundPos+1;
+      LabelSearchUpdate;
+
+      GozGraph.ClearSelections;
+      GozGraph.SelectItems(item);
+      GozGraph.Repaint;
+      GozGraphItemSelected(item);
+
+      //Fokus auf Element
+      ScaledX:=Round(item.x*GozGraph.ScaleFactor);
+      ScaledY:=Round(item.y*GozGraph.ScaleFactor);
+      ScrollBox1.HorzScrollBar.Position:=ScaledX-(ScrollBox1.ClientWidth div 2);
+      ScrollBox1.VertScrollBar.Position:=ScaledY-(ScrollBox1.ClientHeight div 2);
+
+    end
+  else MessageDlg('Suchen nach','Das Element wurde nicht mehr gefunden:'
+         +#10#13#10#13+EditSearch.Text,mtInformation,[mbOK],0);
 end;
 
 procedure TMainForm.ActionSetupPreferencesExecute(Sender: TObject);
@@ -283,6 +356,41 @@ end;
 procedure TMainForm.CheckBoxShowQuantitiesChange(Sender: TObject);
 begin
   GozGraph.ShowQuantities:=CheckBoxShowQuantities.Checked;
+end;
+
+procedure TMainForm.LabelSearchUpdate;
+var
+  s,s2 : string;
+begin
+  s:=IntToStr(FoundCount);
+  if FoundCount=0 then s:='kein';
+
+
+  if FoundCount>1 then
+    begin
+      s2:='Elemente';
+      if FoundPos>0 then
+        begin
+          s:=IntToStr(FoundPos)+' von '+s;
+          s2:='Elementen';
+        end;
+    end
+  else s2:='Element';
+  LabelSearch.Caption:=s+' '+s2+' gefunden';
+end;
+
+procedure TMainForm.EditSearchChange(Sender: TObject);
+var
+  item : TGozGraphItem;
+  i : integer;
+begin
+
+  FoundCount:=0;
+  for i:=0 to GozGraph.Items.Count-1 do
+    if SearchItemFound(i)=true then FoundCount:=FoundCount+1;
+
+  FoundPos:=0;
+  LabelSearchUpdate;
 end;
 
 

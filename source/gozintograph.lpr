@@ -8,8 +8,7 @@ uses
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
   Forms, runtimetypeinfocontrols, lazcontrols, gozgraph,
-  main, about, preferences, importcsv
-  { you can add units after this };
+  main, about, preferences, importcsv;
 
 {$R *.res}
 

@@ -1,0 +1,73 @@
+object FileInformationForm: TFileInformationForm
+  Left = 806
+  Height = 381
+  Top = 191
+  Width = 481
+  BorderStyle = bsDialog
+  Caption = 'Datei-Information'
+  ClientHeight = 381
+  ClientWidth = 481
+  OnCreate = FormCreate
+  Position = poMainFormCenter
+  LCLVersion = '2.0.12.0'
+  object Panel1: TPanel
+    Left = 0
+    Height = 46
+    Top = 335
+    Width = 481
+    Align = alBottom
+    BevelOuter = bvNone
+    ClientHeight = 46
+    ClientWidth = 481
+    ParentFont = False
+    TabOrder = 0
+    object Panel2: TPanel
+      Left = 379
+      Height = 46
+      Top = 0
+      Width = 102
+      Align = alRight
+      BevelOuter = bvNone
+      ClientHeight = 46
+      ClientWidth = 102
+      ParentFont = False
+      TabOrder = 0
+      object Button1: TButton
+        Left = 0
+        Height = 31
+        Top = 0
+        Width = 94
+        Caption = 'Ok'
+        Default = True
+        OnClick = Button1Click
+        ParentFont = False
+        TabOrder = 0
+      end
+    end
+  end
+  object ListView1: TListView
+    Left = 8
+    Height = 319
+    Top = 8
+    Width = 465
+    Align = alClient
+    BorderSpacing.Left = 8
+    BorderSpacing.Top = 8
+    BorderSpacing.Right = 8
+    BorderSpacing.Bottom = 8
+    Color = clMenu
+    Columns = <    
+      item
+        Caption = 'Name'
+        Width = 72
+      end    
+      item
+        AutoSize = True
+        Caption = 'Wert'
+        Width = 40
+      end>
+    ParentFont = False
+    TabOrder = 1
+    ViewStyle = vsReport
+  end
+end

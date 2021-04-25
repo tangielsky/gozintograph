@@ -4,57 +4,65 @@
     <PathDelim Value="\"/>
     <Version Value="11"/>
     <BuildModes Active="Default"/>
-    <Units Count="7">
+    <Units Count="6">
       <Unit0>
         <Filename Value="gozintograph.lpr"/>
         <IsPartOfProject Value="True"/>
-        <UsageCount Value="20"/>
-      </Unit0>
-      <Unit1>
-        <Filename Value="data.txt"/>
-        <IsPartOfProject Value="True"/>
-        <UsageCount Value="20"/>
-      </Unit1>
-      <Unit2>
-        <Filename Value="gozgraph.pas"/>
-        <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
-        <CursorPos X="22" Y="14"/>
+        <EditorIndex Value="5"/>
         <UsageCount Value="20"/>
         <Loaded Value="True"/>
-      </Unit2>
-      <Unit3>
+      </Unit0>
+      <Unit1>
+        <Filename Value="gozgraph.pas"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="1"/>
+        <UsageCount Value="20"/>
+        <Loaded Value="True"/>
+      </Unit1>
+      <Unit2>
         <Filename Value="main.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="MainForm"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <IsVisibleTab Value="True"/>
         <UsageCount Value="20"/>
-      </Unit3>
-      <Unit4>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+      </Unit2>
+      <Unit3>
         <Filename Value="about.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="AboutForm"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <EditorIndex Value="4"/>
         <UsageCount Value="20"/>
-      </Unit4>
-      <Unit5>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+      </Unit3>
+      <Unit4>
         <Filename Value="preferences.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="PreferencesForm"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <EditorIndex Value="3"/>
         <UsageCount Value="20"/>
-      </Unit5>
-      <Unit6>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+      </Unit4>
+      <Unit5>
         <Filename Value="importcsv.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="ImportCsvForm"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <EditorIndex Value="2"/>
         <UsageCount Value="20"/>
-      </Unit6>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+      </Unit5>
     </Units>
     <JumpHistory HistoryIndex="-1"/>
     <RunParams>

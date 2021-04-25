@@ -9,5 +9,8 @@ Version 0.1:
 - nur Möglichkeit zum Anzeigen der Struktur und Auswählen von untergeordneten und/oder übergeordneten Elementen
 - Kompiliert mit Lazarus 2.0.12
 
+Version 0.2:
+- Funktionen zum Suchen von Elementen integriert
+
 
 Weitere Infos gibt es unter https://techpluscode.de/erzeugnisstruktur-visualisieren-als-gozintograph/

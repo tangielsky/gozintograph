@@ -14,3 +14,4 @@ Version 0.2:
 
 
 Weitere Infos gibt es unter https://techpluscode.de/erzeugnisstruktur-visualisieren-als-gozintograph/
+oder unter https://techpluscode.de/tag/gozintograph/

@@ -1,0 +1,83 @@
+﻿ArticleId;Caption;ProcurementType;Sourcing;Weight;Price;ProcurementTypeColor;ManufacturedSize;KanbanColor;PriceColor
+MT 110.10.00.005;Abtriebswelle ;Purchased;Commissioning;3;10,22;255;0;536870911;1360008
+MT 120.10.00.005;Abtriebswelle ;Purchased;Commissioning;3,2;12;255;0;536870911;1360008
+MT 110.10.01.001;Antriebsgehäuse ;Purchased;Commissioning;4;16,55;255;0;536870911;255
+MT 120.10.01.001;Antriebsgehäuse ;Purchased;Commissioning;4,2;19;255;0;536870911;255
+MT 110.00.01.000;Antriebsgehäuse ;Manufactured;Commissioning;;;1360008;1;536870911;1360008
+MT 120.00.01.000;Antriebsgehäuse ;Manufactured;Commissioning;;;1360008;1;536870911;1360008
+MT 110.10.00.004;Antriebsrad ;Purchased;Commissioning;0,8;19,69;255;0;536870911;255
+MT 120.10.00.004;Antriebsrad ;Purchased;Commissioning;0,8;23;255;0;536870911;255
+MT 120.10.01.003;Antriebsritzel ;Purchased;Commissioning;0,1;10;255;0;536870911;1360008
+MT 110.10.01.003;Antriebsritzel ;Purchased;Commissioning;0,1;8,66;255;0;536870911;1360008
+MT 120.10.01.002;Antriebswelle ;Purchased;Commissioning;0,9;9;255;0;536870911;1360008
+MT 110.10.01.002;Antriebswelle ;Purchased;Commissioning;0,9;7,42;255;0;536870911;1360008
+100110;Dichtring  DIN 7603 - 10 x 13,5 ;Purchased;Kanban;0,01;0,23;255;0;255;1360008
+100126;Dichtring  DIN 7603 - A 10 x 13,5 ;Purchased;Kanban;0,01;0,23;255;0;255;1360008
+MT 120.10.00.007-ET;Dichtung;Manufactured;Commissioning;;;1360008;1;536870911;1360008
+MT 120.10.00.007;Dichtung ;Purchased;Commissioning;;;255;0;536870911;1360008
+MT 110.10.00.007;Dichtung ;Purchased;Commissioning;;;255;0;536870911;1360008
+MT 110.10.00.010;Entlüftungsschraube ;Purchased;Commissioning;;;255;0;536870911;1360008
+MT 120.10.00.010;Entlüftungsschraube ;Purchased;Commissioning;;;255;0;536870911;1360008
+100128;Federring  DIN 127 - A 8 ;Purchased;Kanban;0,01;0,12;255;0;255;1360008
+100105;Gamma-Ring  TBR 000250 ;Purchased;Kanban;0,01;1,2;255;0;255;1360008
+100109;Gamma-Ring  TBR 000250 ;Purchased;Kanban;0,01;1,2;255;0;255;1360008
+MT 120.10.00.002;Gehäusedeckel ;Purchased;Commissioning;2;8;255;0;536870911;1360008
+MT 110.10.00.002;Gehäusedeckel ;Purchased;Commissioning;1,8;6,37;255;0;536870911;1360008
+MT 110.10.00.004-1;Gesenkschmiedeteil;Purchased;Commissioning;;;255;0;536870911;1360008
+MT 120.10.00.004-1;Gesenkschmiedeteil;Purchased;Commissioning;;;255;0;536870911;1360008
+MT 120.10.01.003-1;Gesenkschmiedeteil;Purchased;Commissioning;;;255;0;536870911;1360008
+MT 110.10.01.003-1;Gesenkschmiedeteil;Purchased;Commissioning;;;255;0;536870911;1360008
+MT 110;Getriebe MT 110;Manufactured;Commissioning;;;1360008;1;536870911;1360008
+MT 120;Getriebe MT 120;Manufactured;Commissioning;;;1360008;1;536870911;1360008
+100130;Kerbnagel  DIN 1476 - 2,6 x 3 ;Purchased;Kanban;0,01;0,2;255;0;255;1360008
+100101;Kugellager  DIN 625 - 6204 Z ;Purchased;Commissioning;0,01;1;255;0;536870911;1360008
+100120;Kugellager  DIN 625 - 6207 Z ;Purchased;Commissioning;0,01;1;255;0;536870911;1360008
+MT 120.10.00.008;Motordichtung ;Purchased;Commissioning;;5,2;255;0;536870911;1360008
+MT 110.10.00.008;Motordichtung ;Purchased;Commissioning;;4,8;255;0;536870911;1360008
+100106;Passfeder  DIN 6885 - A 3x3x16 ;Purchased;Kanban;0,01;0,05;255;0;255;1360008
+100108;Passfeder  DIN 6885 - A 5x5x32 ;Purchased;Kanban;0,01;0,05;255;0;255;1360008
+100127;Passfeder  DIN 6885 - A 8 x 7 x 50 ;Purchased;Kanban;0,01;0,05;255;0;255;1360008
+100119;Passfeder  DIN 6885 - B 10 x 8 x 42 ;Purchased;Kanban;0,01;0,05;255;0;255;1360008
+100117;Passfeder  DIN 6885 - B 5 x 5 x 14 ;Purchased;Kanban;0,01;0,05;255;0;255;1360008
+100102;Passscheibe  DIN 988 - 37 x 47 x 0,1 ;Purchased;Kanban;0,01;0,03;255;0;255;1360008
+100115;Passscheibe  DIN 988 - 42 x 52 x 0,1 ;Purchased;Kanban;0,01;0,03;255;0;255;1360008
+100113;Passscheibe  DIN 988 - 42 x 52 x 2,5 ;Purchased;Kanban;0,01;0,03;255;0;255;1360008
+100121;Passscheibe  DIN 988 - 56 x 72 x 0,1 ;Purchased;Kanban;0,01;0,03;255;0;255;1360008
+MT 120.10.00.001-1;Rohteil;Purchased;Commissioning;;;255;0;536870911;1360008
+MT 120.10.10.001-1;Rohteil;Purchased;Commissioning;;;255;0;536870911;1360008
+MT 110.10.10.001-1;Rohteil;Purchased;Commissioning;;;255;0;536870911;1360008
+MT 110.10.00.002-1;Rohteil;Purchased;Commissioning;;;255;0;536870911;1360008
+MT 110.10.00.001-1;Rohteil;Purchased;Commissioning;;;255;0;536870911;1360008
+MT 120.10.00.002-1;Rohteil;Purchased;Commissioning;;;255;0;536870911;1360008
+MT 110.10.01.001-1;Rundmaterial 30x200;Manufactured;Commissioning;;;1360008;1;536870911;1360008
+MT 120.10.01.001-1;Rundmaterial 30x200;Manufactured;Commissioning;;;1360008;1;536870911;1360008
+100131;Rundmaterial 30x3000;Purchased;Commissioning;;;255;0;536870911;1360008
+MT 110.10.00.003-1;Rundmaterial 35x159;Manufactured;Commissioning;;;1360008;1;536870911;1360008
+MT 120.10.00.003-1;Rundmaterial 35x159;Manufactured;Commissioning;;;1360008;1;536870911;1360008
+100132;Rundmaterial 35x3000;Purchased;Commissioning;;;255;0;536870911;1360008
+MT 120.10.00.005-1;Rundmaterial 50x192;Manufactured;Commissioning;;;1360008;1;536870911;1360008
+MT 110.10.00.005-1;Rundmaterial 50x192;Manufactured;Commissioning;;255;1360008;1;536870911;255
+100133;Rundmaterial 50x3000;Purchased;Commissioning;;;255;0;536870911;1360008
+MT 120.10.01.002-1;Rundstab 30x169;Manufactured;Commissioning;;;1360008;1;536870911;1360008
+MT 110.10.01.002-1;Rundstab 30x169;Manufactured;Commissioning;;;1360008;1;536870911;1360008
+MT 110.10.00.003;Schnecke ;Purchased;Commissioning;1,2;;255;0;536870911;1360008
+MT 120.10.00.003;Schnecke ;Purchased;Commissioning;1,3;;255;0;536870911;1360008
+MT 120.10.00.001;Schnecken-Fußgehäuse ;Purchased;Commissioning;7,7;43;255;0;536870911;255
+MT 110.10.00.001;Schnecken-Fußgehäuse ;Purchased;Commissioning;7,5;38,35;255;0;536870911;255
+MT 120.10.00.006;Schneckenrad ;Purchased;Commissioning;;15;255;0;536870911;1360008
+MT 110.10.00.006;Schneckenrad ;Purchased;Commissioning;;15;255;0;536870911;1360008
+100112;Schrägkugellager  DIN 628 - 7304 B - 2RS - TVP ;Purchased;Commissioning;0,01;3,4;255;0;536870911;1360008
+100129;Sechskantschraube  DIN 933 - M8 x 25 ;Purchased;Commissioning;0,01;0,2;255;0;536870911;1360008
+100107;Sicherungsring  DIN 471 - 14 x 1 ;Purchased;Kanban;0,01;0,06;255;0;255;1360008
+100118;Sicherungsring  DIN 471 - 16 x 1 ;Purchased;Kanban;0,01;0,06;255;0;255;1360008
+100103;Sicherungsring  DIN 472 - 47x1,75 ;Purchased;Kanban;0,01;0,06;255;0;255;1360008
+100114;Sicherungsring  DIN 472 - 52 x 2,0 ;Purchased;Kanban;0,01;0,06;255;0;255;1360008
+100122;Sicherungsring  DIN 472 - 72 x 2,5 ;Purchased;Kanban;0,01;0,06;255;0;255;1360008
+MT 110.10.00.009;Typenschild ;Purchased;Commissioning;0,01;1,2;255;0;536870911;1360008
+MT 120.10.00.009;Typenschild ;Purchased;Commissioning;0,01;1,2;255;0;536870911;1360008
+100116;Verschlusskappe  52 x 10 ;Purchased;Kanban;0,01;0,02;255;0;255;1360008
+100124;Verschlusskappe  72 x 9 ;Purchased;Kanban;0,01;0,03;255;0;255;1360008
+100111;Verschlussschraube  DIN 908 - M10 x 1 ;Purchased;Kanban;0,01;0,3;255;0;255;1360008
+100104;Wellendichtring  DIN 3760 - A 20x47x7 ;Purchased;Kanban;0,01;0,4;255;0;255;1360008
+100123;Wellendichtring  DIN 3760 - AS 35 x 72 x 12 ;Purchased;Kanban;0,01;0,4;255;0;255;1360008
+100125;Zylinderschraube  DIN 912 - M8 x 16 ;Purchased;Kanban;0,01;0,3;255;0;255;1360008

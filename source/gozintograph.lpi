@@ -19,10 +19,10 @@
     </i18n>
     <VersionInfo>
       <UseVersionInfo Value="True"/>
-      <MinorVersionNr Value="2"/>
+      <MinorVersionNr Value="4"/>
       <Language Value="0407"/>
       <Attributes pvaSpecialBuild="True"/>
-      <StringTable LegalCopyright="Thomas Angielsky - 2021"/>
+      <StringTable CompanyName="techpluscode.de" LegalCopyright="Thomas Angielsky - 2021"/>
     </VersionInfo>
     <BuildModes Count="1">
       <Item1 Name="Default" Default="True"/>
@@ -50,7 +50,7 @@
         <PackageName Value="LCL"/>
       </Item4>
     </RequiredPackages>
-    <Units Count="6">
+    <Units Count="12">
       <Unit0>
         <Filename Value="gozintograph.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -87,6 +87,45 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit5>
+      <Unit6>
+        <Filename Value="gozinfo.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="GozInfoForm"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="itemprops.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="ItemPropertiesForm"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="gozfunc.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="colfind.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="ColorFinderForm"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="importprops.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="ImportItemPropertiesForm"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="modprop.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="ModifyPropertiesForm"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit11>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -110,7 +149,7 @@
     </Linking>
   </CompilerOptions>
   <Debugging>
-    <Exceptions Count="3">
+    <Exceptions Count="4">
       <Item1>
         <Name Value="EAbort"/>
       </Item1>
@@ -120,6 +159,9 @@
       <Item3>
         <Name Value="EFOpenError"/>
       </Item3>
+      <Item4>
+        <Name Value="EConvertError"/>
+      </Item4>
     </Exceptions>
   </Debugging>
 </CONFIG>

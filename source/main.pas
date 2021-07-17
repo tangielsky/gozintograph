@@ -9,7 +9,7 @@ https://techpluscode.de/tag/gozintograph
 https://techpluscode.de/erzeugnisstruktur-visualisieren-als-gozintograph
 https://techpluscode.de/produktstruktur-analyse-im-gozintograph-viewer
 
-(C) 2021 Thomas Angielsky  
+(C) 2021 Thomas Angielsky
 
 
 
@@ -17,6 +17,13 @@ Version 0.1: first realeased version
              compiled with Lazarus 2.0.12
 
 Version 0.2: added search inputfield
+
+Version 0.3: added Gozintograph information form
+             appended properties via additional CSV file to format item
+             like item width, height, second color
+             store setup values of import dialogs
+
+Version 0.4: added different shapes for product, modules and items
 
 }
 
@@ -28,13 +35,17 @@ uses
 
 
 const
-  URL_TECHPLUSCODE = 'https://techpluscode.de';
+  URL_TECHPLUSCODE = 'https://techpluscode.de/tag/gozintograph';
 
 
 type
   { TMainForm }
 
   TMainForm = class(TForm)
+    ActionIUpdatetemProperties: TAction;
+    ActionColorFinder: TAction;
+    ActionGozGraphInfo: TAction;
+    ActionLoadItemProperties: TAction;
     ActionSearch: TAction;
     ActionImportCsvIcon: TAction;
     ActionZoomAll: TAction;
@@ -51,10 +62,13 @@ type
     CheckBoxSelectionUp: TCheckBox;
     CheckBoxShowQuantities: TCheckBox;
     CheckBoxShowCaptions: TCheckBox;
+    ColorDialog1: TColorDialog;
     EditSearch: TEdit;
+    ImageListProps: TImageList;
     ImageListIconLarge: TImageList;
     ImageListIconSmall: TImageList;
     Label12: TLabel;
+    Label7: TLabel;
     LabelSearch: TLabel;
     Label5: TLabel;
     LabelFilename: TLabel;
@@ -71,9 +85,11 @@ type
     LabelX: TLabel;
     ListBox1: TListBox;
     ListViewSelected: TListView;
+    MenuItem1: TMenuItem;
     Panel1: TPanel;
     Panel19: TPanel;
     Panel2: TPanel;
+    Panel20: TPanel;
     Panel29: TPanel;
     Panel3: TPanel;
     Panel30: TPanel;
@@ -83,11 +99,13 @@ type
     Panel34: TPanel;
     Panel36: TPanel;
     Panel37: TPanel;
+    Panel38: TPanel;
     Panel39: TPanel;
     Panel4: TPanel;
     Panel6: TPanel;
     Panel7: TPanel;
     PanelItemDetails: TPanel;
+    PopupMenuHelp: TPopupMenu;
     ScrollBox1: TScrollBox;
     SpeedButton1: TSpeedButton;
     SpeedButton10: TSpeedButton;
@@ -98,16 +116,26 @@ type
     SpeedButton16: TSpeedButton;
     SpeedButton17: TSpeedButton;
     SpeedButton2: TSpeedButton;
+    SpeedButton20: TSpeedButton;
+    SpeedButton21: TSpeedButton;
+    SpeedButton22: TSpeedButton;
+    SpeedButton23: TSpeedButton;
+    SpeedButton3: TSpeedButton;
     SpeedButton4: TSpeedButton;
     SpeedButton5: TSpeedButton;
     SpeedButton6: TSpeedButton;
     SpeedButton8: TSpeedButton;
     SpeedButton9: TSpeedButton;
+    Splitter1: TSplitter;
     TrackBarZoom: TTrackBar;
     procedure ActionAboutExecute(Sender: TObject);
     procedure ActionAutolayoutExecute(Sender: TObject);
+    procedure ActionColorFinderExecute(Sender: TObject);
+    procedure ActionGozGraphInfoExecute(Sender: TObject);
     procedure ActionHomepageExecute(Sender: TObject);
     procedure ActionImportCsvExecute(Sender: TObject);
+    procedure ActionIUpdatetemPropertiesExecute(Sender: TObject);
+    procedure ActionLoadItemPropertiesExecute(Sender: TObject);
     procedure ActionSearchExecute(Sender: TObject);
     procedure ActionSetupPreferencesExecute(Sender: TObject);
     procedure ActionZoomAllExecute(Sender: TObject);
@@ -121,15 +149,18 @@ type
     procedure FormActivate(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
+    procedure ListViewSelectedDblClick(Sender: TObject);
     procedure ScrollBox1MouseWheelDown(Sender: TObject; Shift: TShiftState;
       MousePos: TPoint; var Handled: Boolean);
     procedure ScrollBox1MouseWheelUp(Sender: TObject; Shift: TShiftState;
       MousePos: TPoint; var Handled: Boolean);
+    procedure SpeedButton15Click(Sender: TObject);
     procedure TrackBarZoomChange(Sender: TObject);
   private
     FirstStart : boolean;
     SearchIndex : integer;
     FoundPos, FoundCount : integer;
+    SelectedItem : TGozGraphItem;
     procedure ApplyZoom(ZoomDelta: integer);
     procedure GozGraphItemSelected( item: TGozGraphItem);
     procedure LabelSearchUpdate;
@@ -141,11 +172,13 @@ type
 var
   MainForm: TMainForm;
 
+
 implementation
 
 {$R *.lfm}
 
-uses preferences, importcsv, about;
+uses preferences, importcsv, importprops, itemprops, gozinfo, gozfunc,
+  modprop, colfind, about;
 
 
 { TMainForm }
@@ -154,6 +187,7 @@ procedure TMainForm.FormCreate(Sender: TObject);
 begin
   FirstStart:=true;
   SearchIndex:=0;
+  SelectedItem:=nil;
 
   GozGraph:=TGozIntoGraph.Create(MainForm);
   GozGraph.Align:=alNone;
@@ -161,6 +195,39 @@ begin
   GozGraph.Left:=0;
   GozGraph.OnItemSelected:=@GozGraphItemSelected;
   Scrollbox1.InsertControl(GozGraph);
+end;
+
+procedure TMainForm.ListViewSelectedDblClick(Sender: TObject);
+var
+  item : TListItem;
+  prop : TGozValueProperty;
+  FieldProperty : TGozFieldProperty;
+begin
+  item:=ListViewSelected.Selected;
+
+  if item=nil then exit;
+  //Farbe2 anpassen?
+  if item.Caption='Farbe' then
+    begin
+      ColorDialog1.Color:=SelectedItem.Color2;
+      if ColorDialog1.Execute then
+        begin
+          SelectedItem.Color2:=ColorDialog1.Color;
+          GozGraphItemSelected(SelectedItem);
+        end;
+    end;
+
+
+  if item.Data=nil then exit;
+  //zusätzliche Eigenschaften anpassen?
+
+  prop:=SelectedItem.Properties.ExistsValueId(TGozFieldProperty(item.Data).Id);
+  if prop=nil then
+    prop:=SelectedItem.Properties.AddValue(TGozFieldProperty(item.Data),'');
+
+  ModifyPropertiesForm.ValueProperty:=prop;
+  ModifyPropertiesForm.ShowModal;
+  GozGraphItemSelected(SelectedItem);
 end;
 
 procedure TMainForm.FormActivate(Sender: TObject);
@@ -171,14 +238,19 @@ begin
   if FirstStart=false then exit;
   FirstStart:=false;
 
-  PreferencesForm.Filename:=copy(
+  PreferencesForm.GozGraph:=GozGraph;
+  ImportCsvForm.GozGraph:=GozGraph;
+  ImportItemPropertiesForm.GozGraph:=GozGraph;
+
+  ConfigFilename:=copy(
     ExtractFilename(ParamStr(0)),1,
     length(ExtractFilename(ParamStr(0)))-length(ExtractFileExt(ParamStr(0))))
     +'.ini';
+  PreferencesForm.LoadFromFile;
   PreferencesForm.Apply;
 
   try
-    Ini:=TInifile.create(PreferencesForm.Filename);
+    Ini:=TInifile.create(ConfigFilename);
     s:='Window';
     Left:=Ini.ReadInteger(s,'Left',50);
     Top:=Ini.ReadInteger(s,'Top',50);
@@ -190,6 +262,7 @@ begin
     CheckBoxSelectionDown.Checked:=Ini.ReadBool(s,'SelectionDown',false);
     CheckBoxShowQuantities.Checked:=Ini.ReadBool(s,'ShowQuantities',false);
     CheckBoxShowCaptions.Checked:=Ini.ReadBool(s,'ShowCaptions',true);
+    PanelItemDetails.Width:=Ini.ReadInteger(s,'ItemDetails',260);
 
     Ini.Free;
   except
@@ -200,6 +273,11 @@ begin
   CheckBoxShowQuantitiesChange(Sender);
   CheckBoxShowCaptionsChange(Sender);
 
+  {
+  GozGraph.ImportFromCsvFile('C:\Users\tangi\Documents\Coding\Lazarus\Gozintograph\data\0.4\demo-stueckliste.csv',
+    ';', true,1,2,3);
+  LabelFilename.Caption:=GozGraph.Filename;
+  }
 end;
 
 procedure TMainForm.FormClose(Sender: TObject; var CloseAction: TCloseAction);
@@ -208,7 +286,7 @@ var
   s : string;
 begin
   try
-    Ini:=TInifile.create(PreferencesForm.Filename);
+    Ini:=TInifile.create(ConfigFilename);
     s:='Window';
     Ini.WriteInteger(s,'Left',Left);
     Ini.WriteInteger(s,'Top',Top);
@@ -220,6 +298,7 @@ begin
     Ini.WriteBool(s,'SelectionDown',CheckBoxSelectionDown.Checked);
     Ini.WriteBool(s,'ShowQuantities',CheckBoxShowQuantities.Checked);
     Ini.WriteBool(s,'ShowCaptions',CheckBoxShowCaptions.Checked);
+    Ini.WriteInteger(s,'ItemDetails',PanelItemDetails.Width);
 
     Ini.Free;
   except
@@ -261,6 +340,21 @@ begin
   GozGraph.Autolayout;
 end;
 
+procedure TMainForm.ActionColorFinderExecute(Sender: TObject);
+begin
+  ColorFinderForm.ShowModal;
+end;
+
+procedure TMainForm.ActionGozGraphInfoExecute(Sender: TObject);
+begin
+  try
+    GozInfoForm:=TGozInfoForm.Create(self);
+    GozInfoForm.ShowModal(GozGraph);
+  finally
+    GozInfoForm.Free;
+  end;
+end;
+
 procedure TMainForm.ActionHomepageExecute(Sender: TObject);
 begin
   OpenUrl(URL_TECHPLUSCODE);
@@ -269,6 +363,22 @@ end;
 procedure TMainForm.ActionImportCsvExecute(Sender: TObject);
 begin
   ImportCsvForm.ShowModal;
+  LabelFilename.Caption:=GozGraph.Filename;
+end;
+
+procedure TMainForm.ActionIUpdatetemPropertiesExecute(Sender: TObject);
+begin
+  try
+    ItemPropertiesForm:=TItemPropertiesForm.Create(self);
+    ItemPropertiesForm.ShowModal(GozGraph);
+  finally
+    ItemPropertiesForm.Free;
+  end;
+end;
+
+procedure TMainForm.ActionLoadItemPropertiesExecute(Sender: TObject);
+begin
+  ImportItemPropertiesForm.ShowModal;
 end;
 
 
@@ -395,27 +505,30 @@ end;
 
 
 procedure TMainForm.GozGraphItemSelected(item : TGozGraphItem);
-  procedure Add(caption, value : string);
+  procedure Add(caption, value : string; index : integer);
   var
     ListItem : TListItem;
   begin
     ListItem:=ListViewSelected.Items.Add;
     ListItem.Caption:=caption;
+    ListItem.ImageIndex:=index;
     ListItem.SubItems.Add(value);
   end;
 
 begin
+  SelectedItem:=item;
   ListViewSelected.BeginUpdate;
   ListViewSelected.Items.Clear;
   if item<>nil then
     begin
-      Add('Name',item.caption);
-      Add('Typ',item.ItemTypeCaption);
-      Add('Dispo.-Stufe',IntToStr(item.Level));
-      Add('Eingehend',IntToStr(item.IngoingInformation.Items)+' Element(e)');
-      Add('',FloatToStr(item.IngoingInformation.Quantity)+' Stk');
-      Add('Ausgehend',IntToStr(item.OutgoingInformation.Items)+' Element(e)');
-      Add('',FloatToStr(item.OutgoingInformation.Quantity)+' Stk');
+      Add('Name',item.caption,4);
+      Add('Typ',item.ItemTypeCaption,4);
+      Add('Dispo.-Stufe',IntToStr(item.Level),4);
+      Add('Farbe',IntToStr(item.Color2),4);
+      Add('Eingehend',IntToStr(item.IngoingInformation.Items)+' Element(e) / '+FloatToStr(item.IngoingInformation.Quantity)+' Stk',5);
+      Add('Ausgehend',IntToStr(item.OutgoingInformation.Items)+' Element(e) / '+FloatToStr(item.OutgoingInformation.Quantity)+' Stk',5);
+
+      GozGraph.UpdatePropertyListview(ListViewSelected,item);
     end;
   ListViewSelected.EndUpdate;
 end;
@@ -431,6 +544,13 @@ procedure TMainForm.ScrollBox1MouseWheelUp(Sender: TObject; Shift: TShiftState;
   MousePos: TPoint; var Handled: Boolean);
 begin
   if ssCtrl in Shift then ApplyZoom(1);
+end;
+
+procedure TMainForm.SpeedButton15Click(Sender: TObject);
+var P : TPoint;
+begin
+  P:=ClientToScreen(Point(Panel29.Left+SpeedButton15.Left,SpeedButton15.Top+SpeedButton15.Height));
+  PopupMenuHelp.Popup(P.X, P.Y);
 end;
 
 procedure TMainForm.TrackBarZoomChange(Sender: TObject);

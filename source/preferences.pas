@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, ExtCtrls,
-  StdCtrls, Spin, EditBtn, Inifiles;
+  StdCtrls, Spin, EditBtn, Inifiles, gozgraph;
 
 type
   { TPreferencesForm }
@@ -15,6 +15,7 @@ type
     Button1: TButton;
     Button2: TButton;
     CheckBoxItemDetails: TCheckBox;
+    CheckBoxLinks: TCheckBox;
     ColorButtonBackground: TColorButton;
     ColorButtonItem: TColorButton;
     ColorButtonItemSelected: TColorButton;
@@ -24,6 +25,7 @@ type
     ColorButtonLink: TColorButton;
     ColorButtonItemText: TColorButton;
     ColorButtonLinkText: TColorButton;
+    ComboBoxItemShape: TComboBox;
     GroupBox1: TGroupBox;
     GroupBox2: TGroupBox;
     Label11: TLabel;
@@ -33,12 +35,14 @@ type
     Label15: TLabel;
     Label16: TLabel;
     Label17: TLabel;
+    Label18: TLabel;
     Label3: TLabel;
     Label4: TLabel;
     Label5: TLabel;
     Label6: TLabel;
     Label7: TLabel;
     Label8: TLabel;
+    Label9: TLabel;
     PageControl1: TPageControl;
     Panel1: TPanel;
     Panel2: TPanel;
@@ -51,14 +55,14 @@ type
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
   private
-    FFilename : string;
-    procedure SetFilename(AValue: string);
+    FGozGraph : TGozIntoGraph;
   public
     procedure Apply;
-    procedure LoadFromFile(AFilename : string);
-    procedure SaveToFile(AFilename : string);
+    procedure LoadFromFile;
+    procedure SaveToFile;
+
   published
-    property Filename : string read FFilename write SetFilename;
+    property GozGraph : TGozIntoGraph read FGozGraph write FGozGraph;
 
   end;
 
@@ -69,13 +73,13 @@ implementation
 
 {$R *.lfm}
 
-uses main, gozgraph;
+uses main, gozfunc;
 
 { TPreferencesForm }
 
 procedure TPreferencesForm.Button1Click(Sender: TObject);
 begin
-  SaveToFile(FFilename);
+  SaveToFile;
   Apply;
   Close;
 end;
@@ -85,14 +89,13 @@ begin
   Close;
 end;
 
-procedure TPreferencesForm.LoadFromFile(AFilename: string);
+procedure TPreferencesForm.LoadFromFile;
 var
   Ini : TInifile;
   s : string;
 begin
-  //messagedlg('Laden',mtInformation,[mbok],0);
   try
-    Ini:=TInifile.create(AFilename);
+    Ini:=TInifile.create(ConfigFilename);
     s:='Item';
     ColorButtonProduct.ButtonColor:=Ini.ReadInteger(s,'Product color',clGreen);
     ColorButtonModule.ButtonColor:=Ini.ReadInteger(s,'Module color',clNavy);
@@ -103,11 +106,13 @@ begin
     SpinEditDistanceX.Value:=Ini.ReadInteger(s,'Item distance x',75);
     SpinEditDistanceY.Value:=Ini.ReadInteger(s,'Item distance y',150);
     CheckBoxItemDetails.Checked:=Ini.ReadBool(s,'Item details',true);
+    ComboBoxItemShape.ItemIndex:=Ini.ReadInteger(s,'Item shape',0);
 
     s:='Link';
     ColorButtonLink.ButtonColor:=Ini.ReadInteger(s,'Link color',clSilver);
     ColorButtonLinkSelected.ButtonColor:=Ini.ReadInteger(s,'Link selected color',clBlack);
     ColorButtonLinkText.ButtonColor:=Ini.ReadInteger(s,'Link text color',clSilver);
+    CheckboxLinks.Checked:=Ini.ReadBool(s,'Link',true);
 
     s:='Background';
     ColorButtonBackground.ButtonColor:=Ini.ReadInteger(s,'Color',clWhite);
@@ -118,14 +123,13 @@ begin
   end;
 end;
 
-procedure TPreferencesForm.SaveToFile(AFilename: string);
+procedure TPreferencesForm.SaveToFile;
 var
   Ini : TInifile;
   s : string;
 begin
   try
-    //messagedlg('Speichern:',mtInformation,[mbok],0);
-    Ini:=TInifile.create(AFilename);
+    Ini:=TInifile.create(ConfigFilename);
     s:='Item';
     Ini.WriteInteger(s,'Product color',ColorButtonProduct.ButtonColor);
     Ini.WriteInteger(s,'Module color',ColorButtonModule.ButtonColor);
@@ -136,11 +140,14 @@ begin
     Ini.WriteInteger(s,'Item distance x',SpinEditDistanceX.Value);
     Ini.WriteInteger(s,'Item distance y',SpinEditDistanceY.Value);
     Ini.WriteBool(s,'Item details',CheckBoxItemDetails.Checked);
+    Ini.WriteInteger(s,'Item shape',ComboBoxItemShape.ItemIndex);
+
 
     s:='Link';
     Ini.WriteInteger(s,'Link color',ColorButtonLink.ButtonColor);
     Ini.WriteInteger(s,'Link selected color',ColorButtonLinkSelected.ButtonColor);
     Ini.WriteInteger(s,'Link text color',ColorButtonLinkText.ButtonColor);
+    Ini.WriteBool(s,'Link',CheckboxLinks.Checked);
 
     s:='Background';
     Ini.WriteInteger(s,'Color',ColorButtonBackground.ButtonColor);
@@ -151,12 +158,6 @@ begin
   end;
 end;
 
-procedure TPreferencesForm.SetFilename(AValue: string);
-begin
-  if FFilename=AValue then Exit;
-  FFilename:=AValue;
-  LoadFromFile(FFilename);
-end;
 
 procedure TPreferencesForm.Apply;
 begin
@@ -166,7 +167,7 @@ begin
 
   MainForm.PanelItemDetails.Visible:=CheckBoxItemDetails.Checked;
 
-  with MainForm.GozGraph do
+  with FGozGraph do
     begin
       Color:=ColorButtonBackground.ButtonColor;
       HighlightColor:=ColorButtonItemSelected.ButtonColor;
@@ -174,11 +175,15 @@ begin
       LinkTextColor:=ColorButtonLinkText.ButtonColor;
       LinkHighlightColor:=ColorButtonLinkSelected.ButtonColor;
       LinkColor:=ColorButtonLink.ButtonColor;
+      ShowLinks:=CheckboxLinks.Checked;
 
       DefaultItemWidth:=SpinEditItemDiameter.Value;
       DefaultItemHeight:=SpinEditItemDiameter.Value;
       DistanceX:=SpinEditDistanceX.Value;
       DistanceY:=SpinEditDistanceY.Value;
+
+      if ComboBoxItemShape.ItemIndex=1 then ItemShape:=gisMixed
+      else ItemShape:=gisCircle;
     end;
 end;
 

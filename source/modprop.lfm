@@ -1,0 +1,89 @@
+object ModifyPropertiesForm: TModifyPropertiesForm
+  Left = 718
+  Height = 221
+  Top = 433
+  Width = 385
+  BorderStyle = bsDialog
+  Caption = 'Eigenschaft ändern'
+  ClientHeight = 221
+  ClientWidth = 385
+  DesignTimePPI = 120
+  Position = poMainFormCenter
+  LCLVersion = '2.0.12.0'
+  object Panel1: TPanel
+    Left = 0
+    Height = 58
+    Top = 163
+    Width = 385
+    Align = alBottom
+    BevelOuter = bvNone
+    ClientHeight = 58
+    ClientWidth = 385
+    ParentFont = False
+    TabOrder = 1
+    object Panel2: TPanel
+      Left = 121
+      Height = 58
+      Top = 0
+      Width = 264
+      Align = alRight
+      BevelOuter = bvNone
+      ClientHeight = 58
+      ClientWidth = 264
+      ParentFont = False
+      TabOrder = 0
+      object Button1: TButton
+        Left = 0
+        Height = 39
+        Top = 10
+        Width = 118
+        Caption = 'Ok'
+        Default = True
+        OnClick = Button1Click
+        ParentFont = False
+        TabOrder = 0
+      end
+      object Button2: TButton
+        Left = 130
+        Height = 39
+        Top = 10
+        Width = 118
+        Cancel = True
+        Caption = 'Abbruch'
+        OnClick = Button2Click
+        ParentFont = False
+        TabOrder = 1
+      end
+    end
+  end
+  object Label1: TLabel
+    Left = 24
+    Height = 20
+    Top = 24
+    Width = 40
+    Caption = 'Name'
+    ParentColor = False
+  end
+  object EditField: TEdit
+    Left = 112
+    Height = 28
+    Top = 24
+    Width = 248
+    TabOrder = 2
+  end
+  object Label2: TLabel
+    Left = 24
+    Height = 20
+    Top = 58
+    Width = 31
+    Caption = 'Wert'
+    ParentColor = False
+  end
+  object EditValue: TEdit
+    Left = 112
+    Height = 28
+    Top = 58
+    Width = 248
+    TabOrder = 0
+  end
+end

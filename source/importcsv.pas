@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  EditBtn, Grids;
+  EditBtn, Grids, Inifiles, gozgraph;
 
 type
 
@@ -26,6 +26,7 @@ type
     Label3: TLabel;
     Label4: TLabel;
     Label5: TLabel;
+    Label6: TLabel;
     Panel1: TPanel;
     Panel2: TPanel;
     StringGrid1: TStringGrid;
@@ -35,9 +36,12 @@ type
     procedure ComboBoxDelimiterChange(Sender: TObject);
     procedure FileNameEdit1Change(Sender: TObject);
   private
-    function StrInt(s : string) : integer;
+   FGozGraph : TGozIntoGraph;
+ public
+   function ShowModal: Integer; override;
 
-  public
+ published
+   property GozGraph : TGozIntoGraph read FGozGraph write FGozGraph;
 
   end;
 
@@ -48,7 +52,7 @@ implementation
 
 {$R *.lfm}
 
-uses main, gozgraph;
+uses gozfunc;
 
 
 { TImportCsvForm }
@@ -56,21 +60,45 @@ uses main, gozgraph;
 procedure TImportCsvForm.Button1Click(Sender: TObject);
 var
   j : integer;
+  Ini : TInifile;
+  s : string;
 begin
   if (ComboboxSource.Text='') or (ComboboxDestination.Text='') then
     begin
-      MessageDlg('Achtung','Bitte vorher Zielknoten und Startknoten eintragen.',mtWarning,[mbOK],0);
+      MessageDlg('Achtung','Bitte vorher Zielknoten und Startknoten eintragen.',mtInformation,[mbOK],0);
+      exit;
+    end;
+
+  if ComboBoxDelimiter.Text='' then
+    begin
+      MessageDlg('Achtung','Bitte vorher Trennzeichen eintragen.',mtInformation,[mbOK],0);
       exit;
     end;
 
   if ComboboxQuantity.Text='' then j:=-1
   else j:=StrInt(ComboboxQuantity.Text);
 
-  MainForm.LabelFilename.Caption:=FileNameEdit1.FileName;
-
-  MainForm.GozGraph.ImportFromCsvFile(FileNameEdit1.FileName, ComboBoxDelimiter.Text,
+  FGozGraph.ImportFromCsvFile(
+    FileNameEdit1.FileName,
+    ComboBoxDelimiter.Text,
     CheckboxHasHeaders.Checked,
-    StrInt(ComboboxSource.Text),StrInt(ComboboxDestination.Text),j);
+    StrInt(ComboboxSource.Text),
+    StrInt(ComboboxDestination.Text),
+    j);
+
+
+  try
+    Ini:=TInifile.Create(ConfigFilename);
+    s:='Import CSV';
+    Ini.WriteString(s,'Delimiter',ComboBoxDelimiter.Text);
+    Ini.WriteString(s,'Source',ComboBoxSource.Text);
+    Ini.WriteString(s,'Destination',ComboBoxDestination.Text);
+    Ini.WriteString(s,'Quantity',ComboBoxQuantity.Text);
+    Ini.WriteBool(s,'HasHeaders',CheckBoxHasHeaders.Checked);
+    Ini.Free;
+  except
+  end;
+
 
   Close;
 end;
@@ -134,14 +162,27 @@ begin
 
 end;
 
-function TImportCsvForm.StrInt(s: string): integer;
+function TImportCsvForm.ShowModal: Integer;
+var
+  Ini : TInifile;
+  s : string;
 begin
   try
-    result:=StrToInt(s);
+    Ini:=TInifile.Create(ConfigFilename);
+    s:='Import CSV';
+    ComboBoxDelimiter.Text:=Ini.ReadString(s,'Delimiter',';');
+    ComboBoxSource.Text:=Ini.ReadString(s,'Source','');
+    ComboBoxDestination.Text:=Ini.ReadString(s,'Destination','');
+    ComboBoxQuantity.Text:=Ini.ReadString(s,'Quantity','');
+    CheckBoxHasHeaders.Checked:=Ini.ReadBool(s,'HasHeaders',false);
+    Ini.Free;
   except
-    result:=0;
   end;
+
+  Result:=inherited ShowModal;
 end;
+
+
 
 end.
 

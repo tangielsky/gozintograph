@@ -7,8 +7,9 @@ unit gozgraph;
 Component to view a gozintograph structure
 
 
-https://techpluscode.de/produktstruktur-analyse-im-gozintograph/
-https://github.com/tangielsky/gozintograph
+https://techpluscode.de/erzeugnisstruktur-visualisieren-als-gozintograph/
+https://techpluscode.de/produktstruktur-analyse-im-gozintograph-viewer
+https://github.com/tangielsky/tag/gozintograph
 
 (C) 2021 Thomas Angielsky
 
@@ -18,18 +19,81 @@ https://github.com/tangielsky/gozintograph
 interface
 
 uses
-  Classes, SysUtils, Graphics, Controls, LMessages, LCLType, LCLIntf, Math;
+  Classes, SysUtils, Graphics, Controls, LMessages, LCLType, LCLIntf, Math,
+  Dialogs, ComCtrls, ComboEx;
+
 
 type
 
   TGozItemType = (gitUndefined,gitItem,gitModule,gitProduct);
+  TGozItemShape = (gisCircle,gisMixed);
 
 
   TGozLinkInformation = record
     Items : integer;
-    Quantity : double;
+    Quantity : extended;
   end;
 
+  TGozProperty = class
+  private
+    FId : integer;
+  public
+    constructor Create;
+  published
+    property Id : integer read FId write FId;
+  end;
+
+
+  { TGozFieldProperty }
+
+  TGozFieldProperty = class(TGozProperty)
+  private
+    FName : string;
+  public
+    constructor Create;
+  published
+    property Name : string read FName write FName;
+  end;
+
+  { TGozValueProperty }
+
+  TGozValueProperty = class(TGozProperty)
+  private
+    FField : TGozFieldProperty;
+    FValue : string;
+    procedure SetValue(AValue: string);
+  public
+    constructor Create;
+    function GetFloatValue : float;
+  published
+    property Field : TGozFieldProperty read FField write FField;
+    property Value : string read FValue write SetValue;
+  end;
+
+
+  { TGozPropertyList }
+
+  TGozPropertyList = class
+  private
+    IdCount : integer;
+    FList : TList;
+    function ExistsFieldId(Id: integer): TGozFieldProperty;
+    function GetId(Field: string): integer;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear;
+    function AddField(Field: string): TGozFieldProperty;
+    function AddValue(FieldProperty : TGozFieldProperty; Value : string) : TGozValueProperty;
+    function ExistsValueId(Id: integer): TGozValueProperty;
+    function GetValue(Id : integer) : string;
+    function GetValueAsColor(Id : integer) : TColor;
+    function GetValueAsFloat(Id: integer): float;
+    procedure UpdateComboboxEx(ComboboxEx: TComboboxEx);
+    procedure UpdateListview(Listview: TListview);
+  published
+    property List : TList read FList write FList;
+  end;
 
   { TGozGraphConnection }
 
@@ -37,7 +101,7 @@ type
   private
     FDestination : string;
     FHighlighted : boolean;
-    FQuantity : double;
+    FQuantity : extended;
     FSelected: boolean;
     FShowText : boolean;
     FSource : string;
@@ -50,7 +114,7 @@ type
     destructor Destroy; override;
   published
     property Destination : string read FDestination write FDestination;
-    property Quantity : double read FQuantity write FQuantity;
+    property Quantity : extended read FQuantity write FQuantity;
     property Selected : boolean read FSelected write FSelected;
     property ShowText : boolean read FShowText write FShowText;
     property Source : string read FSource write FSource;
@@ -66,7 +130,7 @@ type
   TGozGraphLink = class(TPersistent)
   private
     FDestination : string;
-    FQuantity : double;
+    FQuantity : extended;
     FSelected : boolean;
     FShowText : boolean;
   public
@@ -74,7 +138,7 @@ type
     destructor Destroy; override;
   published
     property Destination: string read FDestination write FDestination;
-    property Quantity: double read FQuantity write FQuantity;
+    property Quantity: extended read FQuantity write FQuantity;
     property Selected: boolean read FSelected write FSelected;
     property ShowText: boolean read FShowText write FShowText;
   end;
@@ -85,11 +149,14 @@ type
   TGozGraphItem = class(TPersistent)
   private
     FCaption: string;
+    FColor2 : TColor;
+    FDescription : string;
     FHeight : integer;
     FItemType : TGozItemType;
     FLevel : integer;
     FLinks: TList;
     FPainted : boolean;
+    FProperties : TGozPropertyList;
     FSelected: boolean;
     FWidth : integer;
     Fx : longint;
@@ -103,15 +170,19 @@ type
 
     function ItemTypeColor : TColor;
     function ItemTypeCaption : string;
-    procedure AddLink(Destination : string; Quantity : double);
+    procedure AddLink(Destination : string; Quantity : extended);
     procedure Clear;
+    procedure SetSize(w,h : integer);
   published
     property Caption : string read FCaption write FCaption;
+    property Color2: TColor read FColor2 write FColor2;
+    property Description : string read FDescription write FDescription;
     property Height : integer read FHeight write FHeight;
     property ItemType : TGozItemType read FItemType write FItemType;
     property Level : integer read FLevel write FLevel;
     property Links : TList read FLinks write FLinks;
     property Painted : boolean read FPainted write FPainted;
+    property Properties : TGozPropertyList read FProperties write FProperties;
     property Selected : boolean read FSelected write FSelected;
     property Width : integer read FWidth write FWidth;
     property x : longint read Fx write Fx;
@@ -131,32 +202,34 @@ type
       FDefaultItemWidth : integer;
       FDistanceX : integer;
       FDistanceY : integer;
+      FFilename : string;
       FFontSize : integer;
       FHighlightColor : TColor;
       FItems: TList;
+      FItemShape : TGozItemShape;
       FLinkColor : TColor;
       FLinkHighlightColor : TColor;
       FLinkTextColor : TColor;
       FOnItemSelected: TOnGozGraphItemSelected;
+      FProperties : TGozPropertyList;
       FScaleFactor : double;
       FSelectionAllDown : boolean;
       FSelectionAllUp : boolean;
       FShowCaptions : boolean;
+      FShowLinks : boolean;
       FShowQuantities : boolean;
       FTextColor : TColor;
 
-      xmax, xmaxtotal, ymax : longint;
+      xmax, ymax : longint;
       MovedItem : TGozGraphItem;
       MovedItemX, MovedItemY : longint;
       Moving : boolean;
 
-      function GetIngoingInformation(ACaption: string): TGozLinkInformation;
-      function GetOutgoingInformation(ACaption: string): TGozLinkInformation;
       function ReScale(value: double): longint;
       function Scale(value: double): longint;
       function AddItem(ACaption: string): boolean;
 
-      procedure AddConnection(Source, Destination: string; Quantity: double; x1,y1,x2,y2 : longint; Selected : boolean);
+      procedure AddConnection(Source, Destination: string; Quantity: extended; x1,y1,x2,y2 : longint; Selected : boolean);
       procedure ArrowTo(xa, ya, xe, ye, pb, pl: integer; Fill: boolean);
       procedure CalcLinks(item: TGozGraphItem; x, y: longint; level: integer);
       procedure ClearConnections;
@@ -171,6 +244,7 @@ type
       procedure SetSelectionAllDown(AValue: boolean);
       procedure SetSelectionAllUp(AValue: boolean);
       procedure SetShowCaptions(AValue: boolean);
+      procedure SetShowLinks(AValue: boolean);
       procedure SetShowQuantities(AValue: boolean);
       procedure UpdateItem(item: TGozGraphItem);
     protected
@@ -179,15 +253,21 @@ type
       constructor Create(AOwner: TComponent); override;
       destructor Destroy; override;
 
+      function CountItemType(AItemType: TGozItemType; MultipleUse: boolean): integer;
       function ExistsItem(ACaption: string): boolean;
+      function GetIngoingInformation(ACaption: string): TGozLinkInformation;
+      function GetOutgoingInformation(ACaption: string): TGozLinkInformation;
       function GetItem(ACaption: string): TGozGraphItem;
       function GetItemAt(X, Y: integer): TGozGraphItem;
       function HasLinks(item: TGozGraphItem): boolean;
       function ImportFromCsvFile(AFilename: string; Delimiter: string;
         HasHeaders: boolean; PosSource, PosDestination, PosQuantity: integer
         ): boolean;
+      function ImportPropsFromCsvFile(AFilename: string; Delimiter: string;
+        HasHeaders: boolean; PosItem: integer; Listview : TListview ): boolean;
+      function MaxLevel : integer;
 
-      procedure AddLink(ParentItem, ChildItem : string; Quantity: double);
+      procedure AddLink(ParentItem, ChildItem : string; Quantity: extended);
       procedure Autolayout;
       procedure Clear;
       procedure ClearSelections;
@@ -195,6 +275,7 @@ type
       procedure SelectItems(startitem: TGozGraphItem);
       procedure SetScaleFactorFromWidth(NewWidth: longint);
       procedure UpdateConnections;
+      procedure UpdatePropertyListview(Listview: TListview; item: TGozGraphItem);
 
     published
       property Color : TColor read FColor write FColor;
@@ -203,17 +284,21 @@ type
       property DefaultItemWidth : integer read FDefaultItemWidth write FDefaultItemWidth;
       property DistanceX : integer read FDistanceX write FDistanceX;
       property DistanceY : integer read FDistanceY write FDistanceY;
+      property Filename : string read FFilename write FFilename;
       property FontSize : integer read FFontSize write FFontSize;
       property HighlightColor : TColor read FHighlightColor write FHighlightColor;
       property Items : TList read FItems write FItems;
+      property ItemShape : TGozItemShape read FItemShape write FItemShape;
       property LinkColor : TColor read FLinkColor write FLinkColor;
       property LinkHighlightColor : TColor read FLinkHighlightColor write FLinkHighlightColor;
       property LinkTextColor : TColor read FLinkTextColor write FLinkTextColor;
       property OnItemSelected: TOnGozGraphItemSelected read FOnItemSelected write FOnItemSelected;
+      property Properties : TGozPropertyList read FProperties write FProperties;
       property ScaleFactor : double read FScaleFactor write SetScaleFactor;
       property SelectionAllDown : boolean read FSelectionAllDown write SetSelectionAllDown;
       property SelectionAllUp : boolean read FSelectionAllUp write SetSelectionAllUp;
       property ShowCaptions : boolean read FShowCaptions write SetShowCaptions;
+      property ShowLinks : boolean read FShowLinks write SetShowLinks;
       property ShowQuantities : boolean read FShowQuantities write SetShowQuantities;
       property TextColor : TColor read FTextColor write FTextColor;
     end;
@@ -226,6 +311,215 @@ var
 
 
 implementation
+
+uses gozfunc;
+
+{ TGozFieldProperty }
+
+constructor TGozFieldProperty.Create;
+begin
+  inherited Create;
+  FName:='';
+end;
+
+{ TGozValueProperty }
+
+procedure TGozValueProperty.SetValue(AValue: string);
+begin
+  if AValue<>FValue then FValue:=AValue;
+end;
+
+constructor TGozValueProperty.Create;
+begin
+  inherited Create;
+  FField:=nil;
+  FValue:='';
+end;
+
+function TGozValueProperty.GetFloatValue: float;
+begin
+  result:=StrToFloatDef(FValue,0);
+end;
+
+{ TGozPropertyList }
+
+constructor TGozPropertyList.Create;
+begin
+  inherited Create;
+
+  IdCount:=0;
+  FList:=TList.Create;
+end;
+
+destructor TGozPropertyList.Destroy;
+begin
+  FList.Free;
+  inherited Destroy;
+end;
+
+procedure TGozPropertyList.Clear;
+var
+  i : integer;
+  prop : TGozFieldProperty;
+begin
+  for i:=0 to FList.Count-1 do
+    begin
+      prop:=TGozFieldProperty(FList[i]);
+      prop.Free;
+    end;
+  FList.Clear;
+end;
+
+function TGozPropertyList.GetId(Field : string) : integer;
+var
+  i : integer;
+  prop : TGozFieldProperty;
+begin
+  result:=-1;
+  for i:=0 to FList.Count-1 do
+    begin
+      prop:=TGozFieldProperty(FList[i]);
+      if Uppercase(Field)=UpperCase(prop.Name) then
+        begin
+          result:=prop.Id;
+          exit;
+        end;
+    end;
+end;
+
+function TGozPropertyList.ExistsFieldId(Id : integer) : TGozFieldProperty;
+var
+  i : integer;
+  GozProperty : TGozFieldProperty;
+begin
+  result:=nil;
+  for i:=0 to FList.Count-1 do
+    begin
+      GozProperty:=TGozFieldProperty(FList[i]);
+      if Id=GozProperty.Id then
+        begin
+          result:=GozProperty;
+          exit;
+        end;
+    end;
+end;
+
+function TGozPropertyList.ExistsValueId(Id : integer) : TGozValueProperty;
+var
+  i : integer;
+  GozProperty : TGozValueProperty;
+begin
+  result:=nil;
+  for i:=0 to FList.Count-1 do
+    begin
+      GozProperty:=TGozValueProperty(FList[i]);
+      if Id=GozProperty.Id then
+        begin
+          result:=GozProperty;
+          exit;
+        end;
+    end;
+end;
+
+function TGozPropertyList.AddField(Field: string): TGozFieldProperty;
+var
+  GozProperty : TGozFieldProperty;
+begin
+  IdCount:=IdCount+1;
+  GozProperty:=TGozFieldProperty.Create;
+  GozProperty.Id:=IdCount;
+  GozProperty.Name:=Field;
+  FList.Add(GozProperty);
+
+  result:=GozProperty;
+end;
+
+function TGozPropertyList.AddValue(FieldProperty: TGozFieldProperty;
+  Value: string): TGozValueProperty;
+var
+  prop : TGozValueProperty;
+begin
+  if FieldProperty<>nil then
+    begin
+      prop:=ExistsValueId(FieldProperty.Id);
+      if prop=nil then
+        begin
+          prop:=TGozValueProperty.Create;
+          prop.Id:=FieldProperty.Id;
+          prop.Value:=Value;
+          prop.Field:=FieldProperty;
+          FList.Add(prop);
+        end
+      else prop.Value:=Value;
+      result:=prop;
+    end else result:=nil;
+end;
+
+
+function TGozPropertyList.GetValue(Id: integer): string;
+var
+  i : integer;
+  GozProperty : TGozValueProperty;
+begin
+  result:='';
+  for i:=0 to FList.Count-1 do
+    begin
+      GozProperty:=TGozValueProperty(FList[i]);
+      if Id=GozProperty.Id then
+        begin
+          result:=GozProperty.Value;
+          exit;
+        end;
+    end;
+end;
+
+function TGozPropertyList.GetValueAsColor(Id: integer): TColor;
+begin
+  result:=StringToColorDef(GetValue(Id),clNone);
+end;
+
+function TGozPropertyList.GetValueAsFloat(Id: integer): float;
+begin
+  result:=StrToFloatDef(GetValue(Id),0);
+end;
+
+
+procedure TGozPropertyList.UpdateListview(Listview: TListview);
+var
+  i : integer;
+  GozProperty : TGozFieldProperty;
+  item : TListitem;
+begin
+  for i:=0 to FList.Count-1 do
+    begin
+      GozProperty:=TGozFieldProperty(FList[i]);
+      item:=Listview.Items.Add;
+      item.ImageIndex:=0;
+      item.Caption:=GozProperty.Name;
+      item.Data:=GozProperty;
+    end;
+end;
+
+procedure TGozPropertyList.UpdateComboboxEx(ComboboxEx: TComboboxEx);
+var
+  i : integer;
+  GozProperty : TGozFieldProperty;
+begin
+  for i:=0 to FList.Count-1 do
+    begin
+      GozProperty:=TGozFieldProperty(FList[i]);
+      ComboboxEx.ItemsEx.AddItem(GozProperty.Name,0,0,0,0,GozProperty);
+    end;
+end;
+
+{ TGozProperty }
+
+constructor TGozProperty.Create;
+begin
+  inherited Create;
+  FId:=-1;
+end;
+
 
 { TGozGraphConnection }
 
@@ -247,6 +541,9 @@ begin
 
   FItems:=TList.Create;
   FConnections:=TList.Create;
+  FProperties:=TGozPropertyList.Create;
+
+  FProperties.AddField('Beschreibung');
 
   FColor:=clWhite;
   FTextColor:=clBlack;
@@ -264,6 +561,10 @@ begin
   FSelectionAllUp:=false;
   FSelectionAllDown:=false;
 
+  FShowCaptions:=true;
+  FShowLinks:=true;
+  FShowQuantities:=true;
+
   FFontsize:=9;
   Canvas.Font.Size:=Scale(FFontsize);
 end;
@@ -275,6 +576,7 @@ begin
 
   Clear;
   FItems.Free;
+  FProperties.Free;
 
   inherited Destroy;
 end;
@@ -370,20 +672,13 @@ begin
           if (linkitem.Painted=false) then
             begin
               CalcLinks(linkitem,x0,y0,level+1);
+              if linkitem.Height>item.Height then y0:=y+(linkitem.Height+FDistanceY);
               x0:=xmax;
-              {if xmax>x0 then
-                begin
-                  //if there are links
-                  if (j<item.Links.Count-1)
-                    and (HasLinks(GetItem(TGozGraphLink(item.Links[j+1]).Destination))) then
-                      x0:=xmax;
-
-                end;}
               if j<item.Links.Count-1 then x0:=x0+(linkitem.Width+FDistanceX);
             end
           else
             begin
-              //bei Mehrfachverwendung immer höchste Stufe
+              //at multiuse always max of level
               if linkitem.y<y0 then
                 begin
                   linkitem.y:=y0;
@@ -395,9 +690,6 @@ begin
 
   if x0>xmax then xmax:=x0;
   if y0>ymax then ymax:=y0;
-
-  if xmax>xmaxtotal then xmaxtotal:=xmax;
-
 
   item.x:=x;
   item.y:=y;
@@ -411,7 +703,7 @@ var
   item : TGozGraphItem;
 begin
   ClearConnections;
-  xmax:=0; xmaxtotal:=0;
+  xmax:=0;
   ymax:=0;
   x:=FDistanceX;
   y:=Canvas.TextHeight('Ag');
@@ -449,11 +741,13 @@ begin
   inherited Paint;
 
 
+  Canvas.AntialiasingMode:=amOff;
+
   Canvas.Brush.Style:=bsSolid;
   Canvas.Brush.Color:=FColor;
   Canvas.FillRect(ClientRect);
 
-  DrawLinks;
+  if FShowLinks then DrawLinks;
   DrawItems;
 end;
 
@@ -509,6 +803,14 @@ procedure TGozIntoGraph.SetShowCaptions(AValue: boolean);
 begin
   if FShowCaptions=AValue then Exit;
   FShowCaptions:=AValue;
+
+  Invalidate;
+end;
+
+procedure TGozIntoGraph.SetShowLinks(AValue: boolean);
+begin
+  if FShowLinks=AValue then Exit;
+  FShowLinks:=AValue;
 
   Invalidate;
 end;
@@ -572,14 +874,11 @@ end;
 
 procedure TGozIntoGraph.DrawLinks;
 var
-  i,j,ox,oy : integer;
+  i,j : integer;
   connection : TGozGraphConnection;
   q : string;
 begin
   Canvas.Pen.Style:=psSolid;
-
-  ox:=FDefaultItemWidth div 2;
-  oy:=FDefaultItemHeight div 2;
 
   for i:=0 to FConnections.Count-1 do
     begin
@@ -588,8 +887,8 @@ begin
       if connection.Selected=true then Canvas.Pen.Color:=FLinkHighlightColor
       else Canvas.Pen.Color:=FLinkColor;
 
-      ArrowTo(Scale(connection.x2+ox),Scale(connection.y2+oy),
-        Scale(connection.x1+ox),Scale(connection.y1+oy*2),
+      ArrowTo(Scale(connection.x2),Scale(connection.y2),
+        Scale(connection.x1),Scale(connection.y1),
         Scale(4),Scale(10),false);
     end;
 
@@ -603,8 +902,8 @@ begin
         begin
           connection:=TGozGraphConnection(FConnections[i]);
           q:=FloatToStr(connection.Quantity);
-          Canvas.TextOut(Scale(((connection.x1+ox)+((connection.x2+ox)-(connection.x1+ox)) div 2)-Canvas.TextWidth(q) div 2),
-            Scale(((connection.y1+oy)+((connection.y2+oy)-(connection.y1+oy)) div 2)-Canvas.TextHeight(q) div 2),q);
+          Canvas.TextOut(Scale(((connection.x1)+((connection.x2)-(connection.x1)) div 2)-Canvas.TextWidth(q) div 2),
+            Scale(((connection.y1)+((connection.y2)-(connection.y1)) div 2)-Canvas.TextHeight(q) div 2),q);
         end;
     end;
 
@@ -615,7 +914,7 @@ procedure TGozIntoGraph.DrawItems;
 var
   i,j : integer;
   th,oy,maxwidth : integer;
-  s,s1,s2 : string;
+  s,s1,s2,itemcaption : string;
   item : TGozGraphItem;
   R : TRect;
 begin
@@ -629,7 +928,51 @@ begin
 
       Canvas.Brush.Color:=item.ItemTypeColor;
       if item.Selected then Canvas.Brush.Color:=FHighlightColor;
-      Canvas.Ellipse(Scale(item.x), Scale(item.y), Scale(item.x+item.Width), Scale(item.y+item.Height));
+
+      if FItemShape=gisMixed then
+        begin
+          if (item.Color2<>clNone) and (item.Selected<>true) then
+            Canvas.Brush.Color:=item.Color2;
+
+          if item.ItemType=gitProduct then
+            Canvas.Rectangle(
+              Scale(item.x), Scale(item.y),
+              Scale(item.x+item.Width), Scale(item.y+item.Height))
+          else if item.ItemType=gitModule then
+            Canvas.Polygon([
+              Point(Scale(item.x+(item.width) div 2), Scale(item.y)),
+              Point(Scale(item.x+item.Width), Scale(item.y+item.Height)),
+              Point(Scale(item.x), Scale(item.y+item.Height))])
+          else
+            Canvas.Ellipse(
+              Scale(item.x), Scale(item.y),
+              Scale(item.x+item.Width), Scale(item.y+item.Height))
+        end
+      else
+        begin
+          if (item.Color2=clNone) or (item.Selected) then
+            Canvas.Ellipse(
+              Scale(item.x), Scale(item.y),
+              Scale(item.x+item.Width), Scale(item.y+item.Height))
+          else
+            begin
+              Canvas.Pie(
+                Scale(item.x), Scale(item.y),
+                Scale(item.x+item.Width), Scale(item.y+item.Height),
+                Scale(item.x+item.Width), Scale(item.y+(item.Height/2)),
+                Scale(item.x), Scale(item.y+(item.Height/2))
+                );
+
+              Canvas.Brush.Color:=item.Color2;
+              Canvas.Pie(
+                Scale(item.x), Scale(item.y),
+                Scale(item.x+item.Width), Scale(item.y+item.Height),
+                Scale(item.x), Scale(item.y+(item.Height/2)),
+                Scale(item.x+item.Width), Scale(item.y+(item.Height/2))
+                );
+            end;
+        end;
+
 
       if item.Selected then Canvas.Brush.Color:=FHighlightColor
       else Canvas.Brush.Color:=FColor;
@@ -663,20 +1006,27 @@ begin
       //Canvas.Font.Color:=clBlack;
       //DrawText(Canvas.Handle, @s[1], Length(s), R, DT_WORDBREAK);
 
+
+      itemcaption:=item.caption;
+      if item.Description<>'' then itemcaption:=item.Description;
+
       if FShowCaptions then
         begin
           Canvas.Font.Color:=FTextColor;
           Canvas.Brush.Style:=bsClear;
           maxwidth:=Round((item.Width+FDistanceX-Canvas.TextWidth('...'))*0.9);
           s:='';
-          for j:=1 to length(item.Caption) do
-            if Canvas.TextWidth(s)<maxwidth then s:=s+copy(item.Caption,j,1)
+
+          for j:=1 to length(itemcaption) do
+            if Canvas.TextWidth(s)<maxwidth then s:=s+copy(itemcaption,j,1)
             else
               begin
                 s:=trim(s)+'...';
                 break;
               end;
-          Canvas.TextOut(Scale(item.x+FDefaultItemWidth div 2 - Canvas.TextWidth(s) div 2),Scale(item.y-th),s);
+          //Canvas.TextOut(Scale(item.x+FDefaultItemWidth div 2 - Canvas.TextWidth(s) div 2),Scale(item.y-th),s);
+          Canvas.TextOut(Scale(item.x+item.Width div 2 - Canvas.TextWidth(s) div 2),
+            Scale(item.y-th),s);
         end;
     end;
 end;
@@ -721,7 +1071,7 @@ begin
 end;
 
 
-procedure TGozIntoGraph.AddConnection(Source, Destination : string; Quantity : double;
+procedure TGozIntoGraph.AddConnection(Source, Destination : string; Quantity : extended;
   x1,y1,x2,y2 : longint; Selected : boolean);
 var
   i : integer;
@@ -760,7 +1110,9 @@ begin
           link:=TGozGraphLink(item.Links[j]);
           item2:=GetItem(link.Destination);
           AddConnection(item.Caption,link.Destination,link.Quantity,
-            item.x,item.y,item2.x,item2.y,item.Selected and item2.Selected);
+            item.x+item.Width div 2,item.y+item.Height,
+            item2.x+item2.Width div 2,item2.y+item2.Height div 2,
+            item.Selected and item2.Selected);
         end;
     end;
 end;
@@ -780,9 +1132,13 @@ var
   sr : TStringArray;
   i,j,k : integer;
   source,destination : string;
-  quantity : double;
+  quantity : extended;
 begin
   result:=false;
+
+  FFilename:=AFilename;
+
+  Cursor:=crHourglass;
 
   sl:=TStringList.Create;
   sl.LoadFromFile(AFilename);
@@ -802,7 +1158,7 @@ begin
         if PosQuantity=-1 then quantity:=1
         else Val(sr[PosQuantity-1],quantity,j);
 
-        if (source<>'') and (destination<>'') then
+        if (source<>'') and (destination<>'') {and (quantity>0)} then
           AddLink(source,destination,quantity);
       end;
 
@@ -811,8 +1167,92 @@ begin
   except
   end;
 
+  Cursor:=crDefault;
+
   sl.Free;
 end;
+
+
+function TGozIntoGraph.ImportPropsFromCsvFile(
+  AFilename: string; Delimiter: string; HasHeaders: boolean;
+  PosItem: integer;
+  Listview : TListview
+  ): boolean;
+var
+  sl : TStringList;
+  sr : TStringArray;
+  i,j : integer;
+  item : TGozGraphItem;
+  Listitem : TListitem;
+  prop : TGozFieldProperty;
+begin
+  result:=false;
+  Cursor:=crHourglass;
+
+  if FileExists(AFilename)=false then
+    begin
+      result:=false;
+      exit;
+    end;
+
+  sl:=TStringList.Create;
+  sl.LoadFromFile(AFilename);
+
+  //add new property fields
+  for i:=0 to Listview.Items.Count-2 do
+    begin
+      Listitem:=Listview.Items[i];
+      if Listitem.ImageIndex=2 then
+        begin
+          prop:=FProperties.AddField(Listitem.Caption);
+          listitem.Data:=prop;
+        end;
+    end;
+
+  try
+    if HasHeaders then j:=1
+    else j:=0;
+
+    for i:=j to sl.Count-1 do
+      begin
+        sr:=sl[i].Split(Delimiter);
+        item:=GetItem(sr[PosItem-1]);
+        if item<>nil then
+          begin
+            //add or update properties
+            for j:=0 to Listview.Items.Count-2 do
+              begin
+                Listitem:=Listview.Items[j];
+                if Listitem.ImageIndex>0 then item.Properties.AddValue(
+                  TGozFieldProperty(Listitem.Data),
+                  sr[StrInt(ListItem.SubItems[0])-1]);
+              end;
+          end;
+      end;
+    Autolayout;
+    result:=true;
+  except
+  end;
+
+  Cursor:=crDefault;
+
+  sl.Free;
+end;
+
+function TGozIntoGraph.MaxLevel: integer;
+var
+  i : integer;
+  item : TGozGraphItem;
+begin
+  result:=0;
+  for i:=0 to FItems.Count-1 do
+    begin
+      item:=TGozGraphItem(FItems[i]);
+      if item<>nil then
+        if item.Level>result then result:=item.Level;
+    end;
+end;
+
 
 
 
@@ -899,6 +1339,25 @@ begin
   if (item.IngoingInformation.Items>0) and (item.OutgoingInformation.Items>0) then item.ItemType:=gitModule;
 end;
 
+procedure TGozIntoGraph.UpdatePropertyListview(Listview: TListview; item : TGozGraphItem);
+var
+  i : integer;
+  prop : TGozFieldProperty;
+  Listitem : TListitem;
+begin
+  if (Listview=nil) or (item=nil) then exit;
+
+  for i:=0 to FProperties.List.Count-1 do
+    begin
+      prop:=TGozFieldProperty(FProperties.List[i]);
+      Listitem:=Listview.Items.Add();
+      Listitem.ImageIndex:=0;
+      Listitem.Caption:=prop.Name;
+      Listitem.SubItems.Add(item.Properties.GetValue(prop.Id));
+      Listitem.Data:=prop;
+    end;
+end;
+
 function TGozIntoGraph.AddItem(ACaption: string) : boolean;
 var
   item : TGozGraphItem;
@@ -915,8 +1374,29 @@ begin
     end;
 end;
 
+function TGozIntoGraph.CountItemType(AItemType: TGozItemType; MultipleUse: boolean): integer;
+var
+  item : TGozGraphItem;
+  i,j : integer;
+begin
+  j:=0;
+  for i:=0 to FItems.Count-1 do
+    begin
+      item:=TGozGraphItem(FItems[i]);
+      if item.ItemType=AItemType then
+        begin
+          if MultipleUse=true then
+            begin
+              if item.OutgoingInformation.Items>1 then j:=j+1;
+            end
+          else j:=j+1;
+        end;
+    end;
+  result:=j;
+end;
 
-procedure TGozIntoGraph.AddLink(ParentItem, ChildItem: string; Quantity: double);
+
+procedure TGozIntoGraph.AddLink(ParentItem, ChildItem: string; Quantity: extended);
 var
   item : TGozGraphItem;
 begin
@@ -1037,8 +1517,10 @@ begin
   inherited Create;
 
   FLinks:=TList.Create;
+  FProperties:=TGozPropertyList.Create;
 
   FCaption:='';
+  FColor2:=clNone;
   FWidth:=50;
   FHeight:=50;
   Fx:=0;
@@ -1051,6 +1533,7 @@ destructor TGozGraphItem.Destroy;
 begin
   Clear;
   FLinks.Free;
+  FProperties.Free;
 
   inherited Destroy;
 end;
@@ -1066,10 +1549,17 @@ begin
       link.Free;
     end;
   FLinks.Clear;
+  FProperties.Clear;
+end;
+
+procedure TGozGraphItem.SetSize(w, h: integer);
+begin
+  FWidth:=w;
+  FHeight:=h;
 end;
 
 
-procedure TGozGraphItem.AddLink(Destination : string; Quantity : double);
+procedure TGozGraphItem.AddLink(Destination: string; Quantity: extended);
 var
   connection : TGozGraphLink;
 begin

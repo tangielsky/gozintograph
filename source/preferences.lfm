@@ -1,26 +1,27 @@
 object PreferencesForm: TPreferencesForm
-  Left = 576
+  Left = 423
   Height = 652
-  Top = 185
-  Width = 895
+  Top = 181
+  Width = 810
   Caption = 'Einstellungen'
   ClientHeight = 652
-  ClientWidth = 895
+  ClientWidth = 810
   DesignTimePPI = 120
+  Position = poMainFormCenter
   LCLVersion = '2.0.12.0'
   object Panel1: TPanel
     Left = 0
     Height = 58
     Top = 594
-    Width = 895
+    Width = 810
     Align = alBottom
     BevelOuter = bvNone
     ClientHeight = 58
-    ClientWidth = 895
+    ClientWidth = 810
     ParentFont = False
     TabOrder = 0
     object Panel2: TPanel
-      Left = 631
+      Left = 546
       Height = 58
       Top = 0
       Width = 264
@@ -58,19 +59,19 @@ object PreferencesForm: TPreferencesForm
     Left = 0
     Height = 594
     Top = 0
-    Width = 895
+    Width = 810
     Align = alClient
     BevelOuter = bvNone
     BorderWidth = 10
     ClientHeight = 594
-    ClientWidth = 895
+    ClientWidth = 810
     ParentFont = False
     TabOrder = 1
     object PageControl1: TPageControl
       Left = 10
       Height = 574
       Top = 10
-      Width = 875
+      Width = 790
       ActivePage = TabSheet1
       Align = alClient
       ParentFont = False
@@ -79,7 +80,7 @@ object PreferencesForm: TPreferencesForm
       object TabSheet3: TTabSheet
         Caption = 'Allgemein'
         ClientHeight = 541
-        ClientWidth = 867
+        ClientWidth = 782
         ParentFont = False
         object Label3: TLabel
           Left = 20
@@ -122,7 +123,7 @@ object PreferencesForm: TPreferencesForm
       object TabSheet1: TTabSheet
         Caption = 'Elemente und Struktur'
         ClientHeight = 541
-        ClientWidth = 867
+        ClientWidth = 782
         ParentFont = False
         object GroupBox1: TGroupBox
           Left = 20
@@ -175,10 +176,10 @@ object PreferencesForm: TPreferencesForm
             ParentFont = False
           end
           object SpinEditItemDiameter: TSpinEdit
-            Left = 576
+            Left = 560
             Height = 28
             Top = 16
-            Width = 116
+            Width = 152
             MaxValue = 1000
             ParentFont = False
             TabOrder = 0
@@ -248,10 +249,10 @@ object PreferencesForm: TPreferencesForm
             ParentFont = False
           end
           object SpinEditDistanceX: TSpinEdit
-            Left = 576
+            Left = 560
             Height = 28
             Top = 56
-            Width = 116
+            Width = 152
             MaxValue = 1000
             ParentFont = False
             TabOrder = 1
@@ -266,10 +267,10 @@ object PreferencesForm: TPreferencesForm
             ParentFont = False
           end
           object SpinEditDistanceY: TSpinEdit
-            Left = 576
+            Left = 560
             Height = 28
             Top = 96
-            Width = 116
+            Width = 152
             MaxValue = 1000
             ParentFont = False
             TabOrder = 2
@@ -283,15 +284,39 @@ object PreferencesForm: TPreferencesForm
             ParentColor = False
             ParentFont = False
           end
+          object ComboBoxItemShape: TComboBox
+            Left = 560
+            Height = 28
+            Top = 136
+            Width = 152
+            ItemHeight = 20
+            ItemIndex = 0
+            Items.Strings = (
+              'nur Kreise'
+              'Kreis, Dreieck, Quadrat'
+            )
+            Style = csDropDownList
+            TabOrder = 3
+            Text = 'nur Kreise'
+          end
+          object Label18: TLabel
+            Left = 408
+            Height = 20
+            Top = 136
+            Width = 58
+            Caption = 'Symbole'
+            ParentColor = False
+            ParentFont = False
+          end
         end
         object GroupBox2: TGroupBox
           Left = 24
           Height = 192
           Top = 328
-          Width = 324
+          Width = 732
           Caption = 'Struktur'
           ClientHeight = 167
-          ClientWidth = 320
+          ClientWidth = 728
           ParentFont = False
           TabOrder = 1
           object ColorButtonLinkText: TColorButton
@@ -350,6 +375,24 @@ object PreferencesForm: TPreferencesForm
             Caption = 'Texte'
             ParentColor = False
             ParentFont = False
+          end
+          object Label9: TLabel
+            Left = 404
+            Height = 20
+            Top = 20
+            Width = 118
+            Caption = 'Verbindungslinien'
+            ParentColor = False
+            ParentFont = False
+          end
+          object CheckBoxLinks: TCheckBox
+            Left = 560
+            Height = 24
+            Top = 20
+            Width = 84
+            Caption = 'anzeigen'
+            ParentFont = False
+            TabOrder = 0
           end
         end
       end

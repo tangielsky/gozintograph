@@ -1,0 +1,75 @@
+object GozInfoForm: TGozInfoForm
+  Left = 851
+  Height = 491
+  Top = 301
+  Width = 605
+  BorderStyle = bsDialog
+  Caption = 'Gozintograph Information'
+  ClientHeight = 491
+  ClientWidth = 605
+  DesignTimePPI = 120
+  Position = poMainFormCenter
+  LCLVersion = '2.0.12.0'
+  object Panel1: TPanel
+    Left = 0
+    Height = 58
+    Top = 433
+    Width = 605
+    Align = alBottom
+    BevelOuter = bvNone
+    ClientHeight = 58
+    ClientWidth = 605
+    ParentFont = False
+    TabOrder = 0
+    object Panel2: TPanel
+      Left = 477
+      Height = 58
+      Top = 0
+      Width = 128
+      Align = alRight
+      BevelOuter = bvNone
+      ClientHeight = 58
+      ClientWidth = 128
+      ParentFont = False
+      TabOrder = 0
+      object Button1: TButton
+        Left = 0
+        Height = 39
+        Top = 0
+        Width = 118
+        Caption = 'Ok'
+        Default = True
+        OnClick = Button1Click
+        ParentFont = False
+        TabOrder = 0
+      end
+    end
+  end
+  object ListView1: TListView
+    Left = 10
+    Height = 413
+    Top = 10
+    Width = 585
+    Align = alClient
+    BorderSpacing.Left = 10
+    BorderSpacing.Top = 10
+    BorderSpacing.Right = 10
+    BorderSpacing.Bottom = 10
+    Columns = <    
+      item
+        AutoSize = True
+        Caption = 'Name'
+        Width = 60
+      end    
+      item
+        AutoSize = True
+        Caption = 'Wert'
+        Width = 52
+      end>
+    ParentFont = False
+    ReadOnly = True
+    SmallImages = MainForm.ImageListProps
+    TabOrder = 1
+    ViewStyle = vsReport
+  end
+end

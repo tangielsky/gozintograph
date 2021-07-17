@@ -12,6 +12,15 @@ Version 0.1:
 Version 0.2:
 - Funktionen zum Suchen von Elementen integriert
 
+Version 0.3:
+- Gozintograph Informationsdialog eingefügt
+- Eigenschaften über CSV Datei hinzufügbar, z. B. Elementbreite, -höhe, Farbe
+- Einstellungen in INI Datei speichern
+
+Version 0.4: 
+- verschiedene Shapes für Produkt, Baugruppe und Einzelteil hinzugefügt
+- https://techpluscode.de/produktstruktur-analysieren-mit-gozintograph-viewer/
+
 
 Weitere Infos gibt es unter https://techpluscode.de/erzeugnisstruktur-visualisieren-als-gozintograph/
 oder unter https://techpluscode.de/tag/gozintograph/
